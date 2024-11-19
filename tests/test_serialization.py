@@ -1,8 +1,7 @@
+import json
 import pytest
 from datetime import timedelta
-from flask.json.provider import JSONProvider
 from unittest.mock import Mock
-import json
 
 from jaaspr.serialization import SerializationPreProcessor, Serializer
 from jaaspr.models import Job, FakeResult
