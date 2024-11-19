@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "jaaspr"
+version = "0.1.0"
+description = "the Jobs as a Service, Provisioned Runtime"
+authors = ["Emmanuel I. Obi <withtwoemms@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[tool.poetry.group.api.dependencies]
+flask = "^3.0.3"
+celery = {extras = ["redis"], version = "^5.4.0"}
+
+[tool.poetry.scripts]
+export-api-deps = "scripts.export:api_dependencies"
+
+[build-system]
+requires = ["poetry-core==1.8.4"]
+build-backend = "poetry.core.masonry.api"
