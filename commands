@@ -1,9 +1,0 @@
-( export $(cat .env) && inv run-agent -w local )
-( export $(cat .env) && inv run-postgres )
-inv run-localstack
-( export $(cat .env) && inv run-prefect-server )
-( export $(cat .env) && inv create-pool -t docker -n local )
-( export $(cat .env) && inv build-deployment -f HELLO -s S3 -w local )
-( export $(cat .env) && inv run-deployment -f HELLO )
-awslocal s3api put-object --bucket jaasper --key testing
-awslocal s3 rb s3://jaasper --force
