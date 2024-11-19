@@ -22,9 +22,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r _requirements.txt
-          poetry install
+        # poetry install -- TODO: uncomment when poetry initialized
 
-      - name: Test with pytest
-        run: |
-          pip install pytest
-          pytest tests
+      # TODO: uncomment when tests available
+      # - name: Test with pytest
+      #   run: |
+      #     pip install pytest
+      #     pytest tests
