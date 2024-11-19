@@ -1,6 +1,7 @@
 from enum import Enum
 from pathlib import Path
 
+from tasks.constants import DATA_BLOCKSROOT
 from tasks.constants import ENTRYPOINT_MODULE_NAME
 from tasks.constants import ENTRYPOINT_FUNCTION_NAME
 from tasks.constants import FLOWSROOT
@@ -30,7 +31,7 @@ class Flows(Enum):
         return DeploymentRef(
             path=self.path / f'{ENTRYPOINT_FUNCTION_NAME}_deployment.yaml'
         )
-
+    
     def __getitem__(self, key) -> 'Flows':
         return Flows[key]
 
@@ -61,10 +62,24 @@ class StorageBlocks(Resources):
         envvar='JAASPER_S3_BUCKET_BLOCK_NAME',
         path=STORAGE_BLOCKSROOT / 'aws' / 's3.py',
     )
+    
+
+class DataBlocks(Resources):
+    DATETIME: BlockRef = BlockRef(
+        type='datetime',
+        envvar='JAASPER_DATETIME_BLOCK_NAME',
+        path=DATA_BLOCKSROOT / 'datetime.py'
+    )
+    JSON: BlockRef = BlockRef(
+        type='json',
+        envvar='JAASPER_JSON_BLOCK_NAME',
+        path=DATA_BLOCKSROOT / 'json.py',
+    )
 
 
 class Blocks(Enum):
     STORAGE: StorageBlocks = StorageBlocks
+    DATA: DataBlocks = DataBlocks
 
     @property
     def subtype(self):
