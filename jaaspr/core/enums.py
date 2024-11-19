@@ -11,8 +11,7 @@ class FromEnviron(Enum):
             raise ValueError(f'Environment variable declared, but undefined: {name}')
         return envvar
 
-    @property
-    def value(self, type: Optional[type] = None):
+    def coerce_value(self, type: Optional[type] = None):
         if type is not None:
             return type(self._value_)
         return self._value_
