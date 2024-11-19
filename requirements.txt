@@ -1,5 +1,0 @@
-invoke==2.2.0
-localstack=2.3.2
-prefect==2.13.1
-prefect-aws==0.3.7
-pyyaml==6.0.1
