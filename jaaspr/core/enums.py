@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 from os import environ
 from typing import Optional
 
@@ -15,3 +15,15 @@ class FromEnviron(Enum):
         if type is not None:
             return type(self._value_)
         return self._value_
+
+
+class ValueMatchesName(Enum):
+    @staticmethod
+    def _generate_next_value_(name, start, count, last_values):
+        return name
+
+
+# TODO: consider formalizing auxiliary state integration
+class AuxiliaryJobStates(ValueMatchesName):
+    CANCELLED = auto()
+    ENQUEUED = auto()
