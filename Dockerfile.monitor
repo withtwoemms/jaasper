@@ -1,0 +1,17 @@
+FROM python:3.12-slim
+
+ARG DEPS=requirements.monitor.txt
+
+# Set the working directory
+WORKDIR /monitor
+
+ADD jaaspr/tasks /monitor/jaaspr/tasks
+ADD jaaspr/core /monitor/jaaspr/core
+ADD jaaspr/config/worker /monitor/jaaspr/config/worker
+
+COPY $DEPS .
+
+# Install dependencies with Poetry
+RUN pip install -r $DEPS
+
+CMD ["sh", "-c", "celery --app=${CELERY_APP} flower --port=${CELERY_MONITORING_PORT} --broker=${CELERY_BROKER_URL} --basic-auth=user:pswd"]
