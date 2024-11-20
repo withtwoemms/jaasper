@@ -1,0 +1,36 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+    env:
+      REDIS_DB_NUM: '0'
+      REDIS_PORT: '6379'
+      REDIS_HOST: 'redis'
+      CELERY_APP: 'jaaspr.tasks'
+      CELERY_BROKER_URL: 'redis://redis:6379/0'
+      CELERY_RESULT_BACKEND: 'redis://redis:6379/0'
+      CELERY_LOG_LEVEL: 'INFO'
+      CELERY_MONITORING_PORT: '5555'
+      FLASK_APP: 'jaaspr.app:app'
+      FLASK_DEBUG: 'DEBUG'
+      FLASK_ENV: 'development'
+      FLASK_LOG_LEVEL: 'DEBUG'
+      FLASK_RUN_HOST: '0.0.0.0'
+      FLASK_RUN_PORT: '1234'
+      WSGI_SERVER: 'waitress'
+      WSGI_SERVER_LOG_LEVEL: 'DEBUG'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository
+      - uses: actions/checkout@v4
+
+      # Run Docker Compose Action
+      - uses: adambirds/docker-compose-action@v1.5.0
+        with:
+          compose-file: "docker-compose.yaml"
+          up-flags: "--build"
+          down-flags: "--volumes"
