@@ -1,11 +1,14 @@
+from celery.result import AsyncResult
 from flask import Flask, jsonify, request
 from flask.wrappers import Response
+from redis import StrictRedis
 
 from jaaspr.config.api import ApiEnvironment
 from jaaspr.core.enums import AuxiliaryJobStates
-from jaaspr.models import Job, FakeResult
+from jaaspr.models import Job
 from jaaspr.serialization import Serializer
 from jaaspr.tasks import do_work_function
+from jaaspr.tasks import celery_task_manager
 
 
 app = Flask(__name__)
@@ -13,6 +16,13 @@ app = Flask(__name__)
 app.json = Serializer(app)
 # TODO: consider this logging format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s' | JSON
 app.logger.setLevel(ApiEnvironment.FLASK_LOG_LEVEL.value)
+
+redis = StrictRedis(
+    host=ApiEnvironment.REDIS_HOST.value,
+    port=ApiEnvironment.REDIS_PORT.value,
+    db=ApiEnvironment.REDIS_DB_NUM.value,
+    decode_responses=True
+)
 
 
 @app.errorhandler(405)
@@ -37,15 +47,41 @@ def config():
 def create_job():
     """Create a new job with an initial state of RECEIVED."""
     job = do_work_function.apply_async()
+    redis.sadd("all_jobs", job.id)  # TODO: source set name from environment
     return jsonify(Job(job_id=job.id, status=AuxiliaryJobStates.ENQUEUED.name)), 202  # ENQUEUED
+
+
+@app.route('/jobs', methods=['GET'])
+def get_all_jobs():
+    # Optional query parameter to filter by state
+    state_filter = request.args.get('state')
+
+    # Retrieve all job IDs from Redis
+    job_ids = redis.smembers("all_jobs")
+
+    jobs = []
+    for job_id in job_ids:
+        job_result = AsyncResult(job_id, app=celery_task_manager)
+
+        # Include only jobs that match the requested state (if provided)
+        if state_filter is None or job_result.state == state_filter.upper():
+            jobs.append(
+                Job(
+                    job_id=job_id,
+                    status=job_result.state,
+                    result=job_result
+                )
+            )
+
+    return jsonify(jobs)
 
 
 @app.route('/jobs/<string:job_id>/status', methods=['GET'])
 def get_job_status(job_id):
     """Retrieve the current state of a job."""
     # Get the job result using the job_id
-    job_result = FakeResult(state='PENDING', value='Job is pending.')
-    
+    job_result = AsyncResult(job_id, app=celery_task_manager)
+
     # Build the response based on job status
     return jsonify(
         Job(
@@ -54,6 +90,21 @@ def get_job_status(job_id):
             result=job_result
         )
     )
+
+
+@app.route('/jobs/<string:job_id>/cancel', methods=['POST'])
+def cancel_job(job_id):
+    # Retrieve the job
+    job = AsyncResult(job_id, app=celery_task_manager)
+
+    # Check if the job is still pending or active
+    if job.state in ['PENDING', 'RECEIVED', 'STARTED']:
+        # Revoke the job (terminate if active)
+        job.revoke(terminate=True)
+        return jsonify(Job(job_id=job_id, status=AuxiliaryJobStates.CANCELLED.name))  # CANCELLED
+    else:
+        # If the job is already finished, we cannot cancel it
+        return {'error': f'Job is already {job.state} and cannot be cancelled'}, 400
 
 
 @app.after_request
