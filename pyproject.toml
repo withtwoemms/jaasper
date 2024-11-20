@@ -23,6 +23,7 @@ redis = "^5.2.0"
 
 [tool.poetry.scripts]
 export-api-deps = "scripts.export:api_dependencies"
+export-worker-deps = "scripts.export:worker_dependencies"
 
 [build-system]
 requires = ["poetry-core==1.8.4"]

@@ -18,3 +18,18 @@ def api_dependencies():
         args=export_command,
         stdout=Path(PROJECTROOT / depsfile).open(mode='w')
     )
+
+
+def worker_dependencies():
+    export_command = [
+        'python', '-m',
+        'poetry', 'export',
+        '--with=worker',
+        '--without-hashes',
+        '--format=requirements.txt',
+    ]
+    depsfile = 'requirements.worker.txt'
+    subprocess.run(
+        args=export_command,
+        stdout=Path(PROJECTROOT / depsfile).open(mode='w')
+    )
