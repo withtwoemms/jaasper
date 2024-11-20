@@ -28,27 +28,6 @@ jobs:
       # Check out the repository
       - uses: actions/checkout@v4
 
-      - name: 'Create env file'
-        run: |
-          touch .env
-          echo ${REDIS_DB_NUM} >> .env
-          echo ${REDIS_PORT} >> .env
-          echo ${REDIS_HOST} >> .env
-          echo ${CELERY_APP} >> .env
-          echo ${CELERY_BROKER_URL} >> .env
-          echo ${CELERY_RESULT_BACKEND} >> .env
-          echo ${CELERY_LOG_LEVEL} >> .env
-          echo ${CELERY_MONITORING_PORT} >> .env
-          echo ${FLASK_APP} >> .env
-          echo ${FLASK_DEBUG} >> .env
-          echo ${FLASK_ENV} >> .env
-          echo ${FLASK_LOG_LEVEL} >> .env
-          echo ${FLASK_RUN_HOST} >> .env
-          echo ${FLASK_RUN_PORT} >> .env
-          echo ${WSGI_SERVER} >> .env
-          echo ${WSGI_SERVER_LOG_LEVEL} >> .env
-          cat .env
-
       # Run Docker Compose Action
       - uses: adambirds/docker-compose-action@v1.5.0
         with:
