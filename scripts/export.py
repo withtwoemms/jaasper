@@ -13,3 +13,7 @@ def api_dependencies():
 
 def worker_dependencies():
     dependencies(SubProjects.WORKER)
+
+
+def monitor_dependencies():
+    dependencies(SubProjects.MONITOR)
