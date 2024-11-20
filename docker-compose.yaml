@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  # Flask web application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "${FLASK_RUN_PORT}:${FLASK_RUN_PORT}"
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - FLASK_APP=${FLASK_APP}
+      - FLASK_DEBUG=${FLASK_DEBUG}
+      - FLASK_ENV=${FLASK_ENV}
+      - FLASK_LOG_LEVEL=${FLASK_LOG_LEVEL}
+      - FLASK_RUN_HOST=${FLASK_RUN_HOST}
+      - FLASK_RUN_PORT=${FLASK_RUN_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_DB_NUM=${REDIS_DB_NUM}
+      - WSGI_SERVER=${WSGI_SERVER}
+      - WSGI_SERVER_LOG_LEVEL=${WSGI_SERVER_LOG_LEVEL}
+    depends_on:
+      - redis
+
+  # Redis server (used as both broker and backend)
+  redis:
+    image: "redis:latest"
+    volumes:
+      - redis_data:/data
+
+  # Celery worker (processes tasks in the queue)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    deploy:
+      replicas: 1
+      # restart_policy:
+      #   condition: on-failure
+    environment:
+      - CELERY_APP=${CELERY_APP}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_LOG_LEVEL=${CELERY_LOG_LEVEL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+    depends_on:
+      - redis
+
+volumes:
+  redis_data:
+  worker_events:
