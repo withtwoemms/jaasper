@@ -9,3 +9,7 @@ def all_dependencies():
 
 def api_dependencies():
     dependencies(SubProjects.API)
+
+
+def worker_dependencies():
+    dependencies(SubProjects.WORKER)
