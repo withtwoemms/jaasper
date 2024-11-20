@@ -8,9 +8,3 @@ class Job(Generic[T]):
     job_id: str
     status: str
     result: Optional[T] = None
-
-
-@dataclass
-class FakeResult():
-    state: str
-    value: str

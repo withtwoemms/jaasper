@@ -4,9 +4,10 @@ from dataclasses import asdict
 from datetime import timedelta
 from json import JSONEncoder
 
+from celery.result import AsyncResult
 from flask.json.provider import JSONProvider
 
-from jaaspr.models import Job, FakeResult
+from jaaspr.models import Job
 
 
 class SerializationPreProcessor(JSONEncoder):
@@ -20,8 +21,8 @@ class SerializationPreProcessor(JSONEncoder):
                 result = obj.total_seconds()  # Convert to seconds
             case Exception():
                 result = repr(obj)
-            case FakeResult():
-                result = obj.value
+            case AsyncResult():
+                result = obj.result if obj.ready() else None
             case _:
                 result = super().default(obj)
         return result
