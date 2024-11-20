@@ -1,10 +1,11 @@
 import json
 import pytest
+from celery.result import AsyncResult
 from datetime import timedelta
 from unittest.mock import Mock
 
 from jaaspr.serialization import SerializationPreProcessor, Serializer
-from jaaspr.models import Job, FakeResult
+from jaaspr.models import Job
 
 
 @pytest.fixture
@@ -13,8 +14,12 @@ def fake_job():
 
 
 @pytest.fixture
-def fake_result():
-    return FakeResult(state="SUCCEDED", value="fake_value")
+def mock_async_result():
+    mock_result = Mock(spec=AsyncResult)
+    mock_result.id = "12345"
+    mock_result.status = "SUCCESS"
+    mock_result.result = "Job succeeded in some amount of time"
+    return mock_result
 
 
 @pytest.fixture
@@ -42,10 +47,10 @@ def test_serialization_exception():
     assert result == "ValueError('An error occurred')", "Exception serialization failed"
 
 
-def test_serialization_fake_result(fake_result):
+def test_serialization_fake_result(mock_async_result):
     encoder = SerializationPreProcessor()
-    result = encoder.default(fake_result)
-    assert result == "fake_value", "FakeResult serialization failed"
+    result = encoder.default(mock_async_result)
+    assert result == "Job succeeded in some amount of time"
 
 
 def test_serialization_unknown_type():
@@ -55,11 +60,11 @@ def test_serialization_unknown_type():
         encoder.default(unknown_obj)
 
 
-def test_serializer_dumps(fake_job, fake_result):
+def test_serializer_dumps(fake_job, mock_async_result):
     serializer = Serializer(app=Mock())
     data = {
         "job": fake_job,
-        "result": fake_result,
+        "result": mock_async_result,
         "delta": timedelta(minutes=30),
         "error": ValueError("Test error"),
     }
@@ -67,6 +72,6 @@ def test_serializer_dumps(fake_job, fake_result):
     parsed_output = json.loads(json_output)
 
     assert parsed_output["job"] == {"job_id": 1, "status": "PENDING", "result": None}, "Job dump failed"
-    assert parsed_output["result"] == "fake_value", "FakeResult dump failed"
+    assert parsed_output["result"] == "Job succeeded in some amount of time"
     assert parsed_output["delta"] == 1800, "Timedelta dump failed"
     assert "ValueError('Test error')" in parsed_output["error"], "Exception dump failed"
