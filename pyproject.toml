@@ -22,6 +22,7 @@ celery = "^5.4.0"
 redis = "^5.2.0"
 
 [tool.poetry.scripts]
+export-all-deps = "scripts.export:all_dependencies"
 export-api-deps = "scripts.export:api_dependencies"
 export-worker-deps = "scripts.export:worker_dependencies"
 
