@@ -21,6 +21,11 @@ celery = {extras = ["redis"], version = "^5.4.0"}
 celery = "^5.4.0"
 redis = "^5.2.0"
 
+[tool.poetry.group.monitor.dependencies]
+celery = "^5.4.0"
+flower = "^2.0.1"
+redis = "^5.2.0"
+
 [tool.poetry.scripts]
 export-all-deps = "scripts.export:all_dependencies"
 export-api-deps = "scripts.export:api_dependencies"
