@@ -1,0 +1,19 @@
+# Use the official lightweight Python image.
+FROM python:3.12-slim
+
+ARG DEPS=requirements.worker.txt
+
+# Set the working directory
+WORKDIR /worker
+
+# Copy the project files to the container
+ADD jaaspr/tasks /worker/jaaspr/tasks
+ADD jaaspr/core /worker/jaaspr/core
+ADD jaaspr/config/worker /worker/jaaspr/config/worker
+COPY $DEPS .
+
+# Install dependencies with Poetry
+RUN pip install -r $DEPS
+
+# Start the Flask app
+CMD ["sh", "-c", "celery --app=$CELERY_APP worker --task-events --loglevel=$CELERY_LOG_LEVEL"]
