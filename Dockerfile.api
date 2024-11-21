@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Copy the project files to the container
 ADD jaaspr /app/jaaspr
-COPY $DEPS .
+COPY dependencies/$DEPS .
 
 # Install dependencies with Poetry
 RUN pip install -r $DEPS
