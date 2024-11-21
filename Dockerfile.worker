@@ -10,7 +10,7 @@ WORKDIR /worker
 ADD jaaspr/tasks /worker/jaaspr/tasks
 ADD jaaspr/core /worker/jaaspr/core
 ADD jaaspr/config/worker /worker/jaaspr/config/worker
-COPY $DEPS .
+COPY dependencies/$DEPS .
 
 # Install dependencies with Poetry
 RUN pip install -r $DEPS

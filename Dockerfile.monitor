@@ -9,7 +9,7 @@ ADD jaaspr/tasks /monitor/jaaspr/tasks
 ADD jaaspr/core /monitor/jaaspr/core
 ADD jaaspr/config/worker /monitor/jaaspr/config/worker
 
-COPY $DEPS .
+COPY dependencies/$DEPS .
 
 # Install dependencies with Poetry
 RUN pip install -r $DEPS

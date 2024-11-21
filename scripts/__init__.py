@@ -5,6 +5,7 @@ from scripts.enums import SubProjects
 
 
 PROJECTROOT = Path(__file__).parent.parent.absolute()
+DEPENDENCYROOT = PROJECTROOT / 'dependencies'
 
 
 def dependencies(subproject: SubProjects):
@@ -18,5 +19,5 @@ def dependencies(subproject: SubProjects):
     depsfile = f'requirements.{subproject.name}.txt'
     subprocess.run(
         args=export_command,
-        stdout=Path(PROJECTROOT / depsfile).open(mode='w')
+        stdout=(DEPENDENCYROOT / depsfile).open(mode='w')
     )

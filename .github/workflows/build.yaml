@@ -34,3 +34,13 @@ jobs:
           compose-file: "docker-compose.yaml"
           up-flags: "--build"
           down-flags: "--volumes"
+          test-container: "monitor"
+          test-command: "celery --app jaaspr.tasks inspect ping"
+
+      - uses: adambirds/docker-compose-action@v1.5.0
+        with:
+          compose-file: "docker-compose.yaml"
+          up-flags: "--build"
+          down-flags: "--volumes"
+          test-container: "monitor"
+          test-command: "celery flower --help"
