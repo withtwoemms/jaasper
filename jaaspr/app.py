@@ -61,8 +61,8 @@ def schedule_job():
     if not data or 'seconds' not in data or 'name' not in data:
         return jsonify({'error': 'Invalid input'}), 400
 
-    # TODO: capture and persist result of scheduled task execution
-    custom_scheduler(celery_task_manager, data['name'], data['seconds'], None)
+    result = custom_scheduler(celery_task_manager, data['name'], data['seconds'], None)
+    redis.sadd("all_jobs", result.id)
 
     return jsonify({"status": "Periodic task scheduled", "interval": data['seconds']}), 201
 
