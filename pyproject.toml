@@ -15,7 +15,7 @@ pytest = "^8.3.3"
 [tool.poetry.group.api.dependencies]
 flask = "^3.0.3"
 waitress = "^3.0.1"
-celery = {extras = ["redis"], version = "^5.4.0"}
+celery = {extras = ["redis", "beat"], version = "^5.4.0"}
 
 [tool.poetry.group.worker.dependencies]
 celery = "^5.4.0"
