@@ -1,6 +1,7 @@
 import threading
 from collections import defaultdict
 from celery import Celery
+from celery.result import AsyncResult
 
 
 # Registry to track tasks using defaultdict (task_name |-> timer)
@@ -23,13 +24,15 @@ def custom_scheduler(celery_app: Celery, task_name: str, interval: int, args=Non
     if args is None:
         args = []
 
-    def run_task():
-        celery_app.send_task(task_name, args=args)
+    def run_task() -> AsyncResult:
+        result = celery_app.send_task(task_name, args=args)
 
         # Schedule the next execution
         with lock:
             task_registry[task_name]['timer'] = threading.Timer(interval, run_task)
             task_registry[task_name]['timer'].start()
+
+        return result
 
     with lock:
         # Replace the task if it already exists
@@ -42,3 +45,5 @@ def custom_scheduler(celery_app: Celery, task_name: str, interval: int, args=Non
         task_registry[task_name] = {'interval': interval, 'args': args}
         task_registry[task_name]['timer'] = threading.Timer(interval, run_task)
         task_registry[task_name]['timer'].start()
+
+    return run_task()
