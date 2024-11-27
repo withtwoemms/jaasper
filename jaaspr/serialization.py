@@ -31,3 +31,6 @@ class SerializationPreProcessor(JSONEncoder):
 class Serializer(JSONProvider):
     def dumps(self, obj: dict, **kwargs):
         return json.dumps(obj, cls=SerializationPreProcessor)
+
+    def loads(self, s, **kwargs):
+        return json.loads(s, **kwargs)

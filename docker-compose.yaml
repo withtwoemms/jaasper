@@ -46,6 +46,21 @@ services:
     depends_on:
       - redis
 
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: celery --app=${CELERY_APP} worker --beat --task-events --loglevel=${CELERY_LOG_LEVEL}
+    deploy:
+      replicas: 1  # TODO: parameterize from environment variable
+    environment:
+      - CELERY_APP=${CELERY_APP}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_LOG_LEVEL=${CELERY_LOG_LEVEL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+    depends_on:
+      - redis
+
   monitor:
     build:
       context: .

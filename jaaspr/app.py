@@ -9,6 +9,7 @@ from jaaspr.models import Job
 from jaaspr.serialization import Serializer
 from jaaspr.tasks import do_work_function
 from jaaspr.tasks import celery_task_manager
+from jaaspr.tasks.scheduling import custom_scheduler
 
 
 app = Flask(__name__)
@@ -49,6 +50,21 @@ def create_job():
     job = do_work_function.apply_async()
     redis.sadd("all_jobs", job.id)  # TODO: source set name from environment
     return jsonify(Job(job_id=job.id, status=AuxiliaryJobStates.ENQUEUED.name)), 202  # ENQUEUED
+
+
+@app.route("/jobs/schedule", methods=['POST'])
+def schedule_job():
+    """Dynamically schedule a Job."""
+    data = request.get_json(silent=True)
+
+    # TODO: formalize this validation by use of some model
+    if not data or 'seconds' not in data or 'name' not in data:
+        return jsonify({'error': 'Invalid input'}), 400
+
+    result = custom_scheduler(celery_task_manager, data['name'], data['seconds'], None)
+    redis.sadd("all_jobs", result.id)
+
+    return jsonify({"status": "Periodic task scheduled", "interval": data['seconds']}), 201
 
 
 @app.route('/jobs', methods=['GET'])
