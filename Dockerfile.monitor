@@ -14,4 +14,4 @@ COPY dependencies/$DEPS .
 # Install dependencies with Poetry
 RUN pip install -r $DEPS
 
-CMD ["sh", "-c", "celery --app=${CELERY_APP} flower --port=${CELERY_MONITORING_PORT} --broker=${CELERY_BROKER_URL} --basic-auth=user:pswd"]
+CMD ["sh", "-c", "celery --app=${CELERY_APP} --broker=${CELERY_BROKER_URL} flower --port=${CELERY_MONITORING_PORT} --basic-auth=user:pswd"]
